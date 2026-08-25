@@ -9,7 +9,7 @@ export function AddToBag({ product }: { product: DemoProduct }) {
   return (
     <button
       onClick={() => add({ id: product.id, slug: product.slug, title: product.title, priceInr: product.price_inr })}
-      className="w-full rounded-full bg-stone-900 px-6 py-4 font-bold text-white transition hover:bg-orange-700 sm:w-auto"
+      className="w-full rounded-full bg-ink-900 px-6 py-4 font-semibold text-sand-50 transition hover:bg-clay-700 sm:w-auto"
     >
       Add to bag
     </button>
