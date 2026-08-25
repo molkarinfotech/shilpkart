@@ -21,11 +21,18 @@ export default async function ProductPage({ params }: { params: { slug: string }
     <main className="min-h-screen bg-sand-50">
       <SiteHeader />
       <section className="mx-auto grid max-w-7xl gap-12 px-5 py-12 lg:grid-cols-2 lg:py-20">
-        <div className={`relative flex aspect-square items-end overflow-hidden rounded-2xl ${texture} p-8 shadow-lg`}>
-          <div
-            className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
-            style={{ backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,.5) 0px, rgba(255,255,255,.5) 1px, transparent 1px, transparent 10px)' }}
-          />
+        <div className={`relative flex aspect-square items-end overflow-hidden rounded-2xl ${product.image_url ? '' : texture} p-8 shadow-lg`}>
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.title} className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <div
+              className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
+              style={{ backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,.5) 0px, rgba(255,255,255,.5) 1px, transparent 1px, transparent 10px)' }}
+            />
+          )}
+          {product.image_url ? (
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink-950/70 to-transparent" />
+          ) : null}
           <div className="relative border-t border-sand-50/25 pt-5 text-sand-50">
             <p className="text-[11px] font-medium uppercase tracking-[.22em] text-sand-100/80">{product.image_label}</p>
             <p className="mt-2 font-display text-3xl">Crafted by hand</p>

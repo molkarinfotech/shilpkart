@@ -20,11 +20,22 @@ export function ProductCard({ product }: { product: DemoProduct }) {
 
   return (
     <article className="group overflow-hidden rounded-2xl bg-sand-50 shadow-sm ring-1 ring-ink-200/70 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <Link href={`/products/${product.slug}`} className={`relative flex aspect-[4/4.8] items-end overflow-hidden ${texture} p-6`}>
-        <div
-          className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
-          style={{ backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,.5) 0px, rgba(255,255,255,.5) 1px, transparent 1px, transparent 10px)' }}
-        />
+      <Link href={`/products/${product.slug}`} className={`relative flex aspect-[4/4.8] items-end overflow-hidden ${product.image_url ? '' : texture} p-6`}>
+        {product.image_url ? (
+          <img
+            src={product.image_url}
+            alt={product.title}
+            className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
+            style={{ backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,.5) 0px, rgba(255,255,255,.5) 1px, transparent 1px, transparent 10px)' }}
+          />
+        )}
+        {product.image_url ? (
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-950/70 to-transparent" />
+        ) : null}
         <div className="relative w-full border-t border-sand-50/25 pt-4 text-sand-50">
           <span className="text-[11px] font-medium uppercase tracking-[.22em] text-sand-100/80">{product.image_label}</span>
           <p className="mt-1 font-display text-lg">Handcrafted in India</p>
