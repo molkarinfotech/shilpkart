@@ -18,13 +18,13 @@ export default function Home() {
             <div className="flex gap-4 justify-center">
               <Link
                 href="/marketplace"
-                className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold"
+                className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
               >
                 Start Shopping
               </Link>
               <Link
                 href="/seller/register"
-                className="bg-white hover:bg-gray-50 text-primary-700 px-8 py-3 rounded-lg font-semibold border-2 border-primary-600"
+                className="bg-white hover:bg-gray-50 text-primary-700 px-8 py-3 rounded-lg font-semibold border-2 border-primary-600 transition-colors"
               >
                 Become a Seller
               </Link>
@@ -106,10 +106,10 @@ function CategoryCard({ name, slug, emoji }: {
   return (
     <Link
       href={`/marketplace?category=${slug}`}
-      className="bg-white hover:bg-primary-50 p-6 rounded-lg shadow-sm text-center"
+      className="bg-white hover:bg-primary-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-all text-center"
     >
       <div className="text-4xl mb-2">{emoji}</div>
-      <h3 className="font-semibold text-gray-800">{name}</h3>
+      <h3 className="font-semibold text-gray-800 hover:text-primary-700">{name}</h3>
     </Link>
   );
 }

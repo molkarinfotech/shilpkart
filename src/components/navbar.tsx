@@ -19,9 +19,6 @@ export function Navbar() {
             <Link href="/categories" className="text-gray-700 hover:text-primary-700">
               Categories
             </Link>
-            <Link href="/about" className="text-gray-700 hover:text-primary-700">
-              About
-            </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
