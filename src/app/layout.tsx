@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { DemoCartProvider } from '@/components/demo-cart-provider';
 
 export const metadata: Metadata = {
   title: 'ShilpKart | Indian Artisan Marketplace',
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <DemoCartProvider>{children}</DemoCartProvider>
+      </body>
     </html>
   );
 }
