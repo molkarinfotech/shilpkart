@@ -7,58 +7,33 @@ export type CartItem = {
   slug: string;
   title: string;
   priceInr: number;
+  imageUrl?: string | null;
+  imageLabel?: string;
+  artisanName?: string;
+  artisanLocation?: string;
   quantity: number;
 };
 
-type CartContextValue = {
-  items: CartItem[];
-  count: number;
-  total: number;
-  add: (item: Omit<CartItem, 'quantity'>) => void;
-  remove: (id: string) => void;
-  clear: () => void;
-};
-
-const CartContext = createContext<CartContextValue | null>(null);
+type AddableCartItem = Omit<CartItem, 'quantity'>;
+type DemoCartContextValue = { items: CartItem[]; count: number; subtotal: number; add: (item: AddableCartItem) => void; setQuantity: (id: string, quantity: number) => void; remove: (id: string) => void; clear: () => void };
+const DemoCartContext = createContext<DemoCartContextValue | null>(null);
 const storageKey = 'shilpkart-demo-cart';
 
 export function DemoCartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey);
-    if (!stored) return;
-    try {
-      setItems(JSON.parse(stored) as CartItem[]);
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(items));
-  }, [items]);
-
-  const value = useMemo<CartContextValue>(() => ({
+  const [ready, setReady] = useState(false);
+  useEffect(() => { try { const stored = window.localStorage.getItem(storageKey); if (stored) setItems(JSON.parse(stored)); } catch { window.localStorage.removeItem(storageKey); } finally { setReady(true); } }, []);
+  useEffect(() => { if (ready) window.localStorage.setItem(storageKey, JSON.stringify(items)); }, [items, ready]);
+  const value = useMemo<DemoCartContextValue>(() => ({
     items,
-    count: items.reduce((sum, item) => sum + item.quantity, 0),
-    total: items.reduce((sum, item) => sum + item.priceInr * item.quantity, 0),
-    add: (item) => setItems((current) => {
-      const existing = current.find((line) => line.id === item.id);
-      if (existing) {
-        return current.map((line) => line.id === item.id ? { ...line, quantity: line.quantity + 1 } : line);
-      }
-      return [...current, { ...item, quantity: 1 }];
-    }),
+    count: items.reduce((total, item) => total + item.quantity, 0),
+    subtotal: items.reduce((total, item) => total + item.priceInr * item.quantity, 0),
+    add: (item) => setItems((current) => { const existing = current.find((entry) => entry.id === item.id); return existing ? current.map((entry) => entry.id === item.id ? { ...entry, quantity: entry.quantity + 1 } : entry) : [...current, { ...item, quantity: 1 }]; }),
+    setQuantity: (id, quantity) => setItems((current) => quantity <= 0 ? current.filter((item) => item.id !== id) : current.map((item) => item.id === id ? { ...item, quantity } : item)),
     remove: (id) => setItems((current) => current.filter((item) => item.id !== id)),
     clear: () => setItems([]),
   }), [items]);
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return <DemoCartContext.Provider value={value}>{children}</DemoCartContext.Provider>;
 }
 
-export function useDemoCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('useDemoCart must be used within DemoCartProvider');
-  return context;
-}
+export function useDemoCart() { const context = useContext(DemoCartContext); if (!context) throw new Error('useDemoCart must be used within DemoCartProvider'); return context; }

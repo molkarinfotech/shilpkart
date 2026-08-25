@@ -2,62 +2,12 @@
 
 import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
-import { useDemoCart } from '@/components/demo-cart-provider';
+import { formatINR } from '@/lib/demo-products';
+import { useDemoCart, type CartItem } from '@/components/demo-cart-provider';
 
-function formatINR(amount: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
-}
+function ProductIcon({ item }: { item: CartItem }) { if (item.imageUrl) return <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />; return <div className="flex h-full w-full items-center justify-center bg-clay-600 text-2xl text-sand-50" aria-hidden="true">{item.slug.includes('shawl') ? '✦' : '✿'}</div>; }
 
 export default function CartPage() {
-  const { items, total, remove, clear } = useDemoCart();
-
-  return (
-    <main className="min-h-screen bg-[#fffdf9]">
-      <SiteHeader />
-      <section className="mx-auto max-w-4xl px-5 py-14">
-        <p className="text-sm font-bold uppercase tracking-[.2em] text-orange-700">Your selection</p>
-        <h1 className="mt-3 text-4xl font-bold text-stone-900">Your bag</h1>
-
-        {items.length === 0 ? (
-          <div className="mt-10 rounded-3xl bg-orange-50 p-12 text-center">
-            <div className="text-5xl">✦</div>
-            <p className="mt-4 text-xl font-bold">Your bag is empty.</p>
-            <Link href="/marketplace" className="mt-6 inline-block rounded-full bg-stone-900 px-6 py-3 font-bold text-white">
-              Discover pieces
-            </Link>
-          </div>
-        ) : (
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_280px]">
-            <div className="space-y-3">
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-                  <div>
-                    <p className="font-bold text-stone-900">{item.title}</p>
-                    <p className="mt-1 text-sm text-stone-500">Quantity {item.quantity}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <p className="font-bold">{formatINR(item.priceInr * item.quantity)}</p>
-                    <button onClick={() => remove(item.id)} className="text-sm font-bold text-orange-700">
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <aside className="h-fit rounded-3xl bg-stone-900 p-6 text-white">
-              <p className="text-sm uppercase tracking-[.15em] text-stone-300">Subtotal</p>
-              <p className="mt-2 text-3xl font-bold">{formatINR(total)}</p>
-              <p className="mt-4 text-sm leading-6 text-stone-300">Checkout will be enabled after Stripe and Razorpay are configured.</p>
-              <button className="mt-6 w-full rounded-full bg-orange-500 px-5 py-3 font-bold text-stone-950" disabled>
-                Checkout coming soon
-              </button>
-              <button onClick={clear} className="mt-4 w-full text-sm font-bold text-stone-300">
-                Clear bag
-              </button>
-            </aside>
-          </div>
-        )}
-      </section>
-    </main>
-  );
+  const { items, subtotal, setQuantity, remove } = useDemoCart(); const shipping = subtotal >= 2500 ? 0 : 180; const total = subtotal + shipping;
+  return <main className="min-h-screen bg-sand-50"><SiteHeader /><section className="mx-auto max-w-6xl px-5 py-12 md:py-16"><p className="text-[11px] font-semibold uppercase tracking-[.24em] text-clay-600">Your selection</p><h1 className="mt-3 font-display text-4xl text-ink-900 md:text-5xl">Your bag</h1>{!items.length ? <div className="mt-10 rounded-2xl border border-dashed border-ink-300 bg-sand-100 p-10 text-center"><p className="font-display text-2xl text-ink-800">Your bag is waiting for a beautiful piece.</p><Link href="/marketplace" className="mt-5 inline-block rounded-full bg-ink-900 px-5 py-3 text-sm font-semibold text-sand-50">Explore the collection</Link></div> : <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px]"><div className="divide-y divide-ink-200 rounded-2xl border border-ink-200 bg-sand-50 px-5">{items.map((item) => <article key={item.id} className="flex gap-4 py-5 sm:gap-5"><div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-clay-600 sm:h-24 sm:w-24"><ProductIcon item={item} /></div><div className="min-w-0 flex-1"><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-clay-600">{item.imageLabel || 'Handcrafted piece'}</p><h2 className="mt-1 font-display text-lg leading-6 text-ink-900">{item.title}</h2><p className="mt-1 text-sm text-ink-500">{item.artisanName ? `By ${item.artisanName}` : 'Independent artisan'}{item.artisanLocation ? ` · ${item.artisanLocation}` : ''}</p><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><div className="flex items-center rounded-full border border-ink-200 bg-sand-100 p-1"><button aria-label={`Reduce ${item.title} quantity`} onClick={() => setQuantity(item.id, item.quantity - 1)} className="h-8 w-8 rounded-full text-lg text-ink-700 transition hover:bg-sand-200">−</button><span className="w-8 text-center text-sm font-semibold text-ink-800">{item.quantity}</span><button aria-label={`Increase ${item.title} quantity`} onClick={() => setQuantity(item.id, item.quantity + 1)} className="h-8 w-8 rounded-full text-lg text-ink-700 transition hover:bg-sand-200">+</button></div><div className="flex items-center gap-4"><span className="font-display text-lg text-ink-900">{formatINR(item.priceInr * item.quantity)}</span><button onClick={() => remove(item.id)} className="text-sm font-medium text-ink-500 underline-offset-4 hover:text-clay-700 hover:underline">Remove</button></div></div></div></article>)}</div><aside className="h-fit rounded-2xl bg-ink-900 p-6 text-sand-50"><h2 className="font-display text-2xl">Order summary</h2><div className="mt-6 space-y-3 border-b border-sand-50/20 pb-5 text-sm"><div className="flex justify-between"><span className="text-sand-100/75">Subtotal</span><span>{formatINR(subtotal)}</span></div><div className="flex justify-between"><span className="text-sand-100/75">Delivery</span><span>{shipping ? formatINR(shipping) : 'Complimentary'}</span></div></div><div className="mt-5 flex items-center justify-between font-display text-xl"><span>Total</span><span>{formatINR(total)}</span></div><p className="mt-3 text-xs leading-5 text-sand-100/70">Complimentary delivery on orders over ₹2,500.</p><Link href="/checkout" className="mt-6 block rounded-full bg-sand-50 px-5 py-3.5 text-center text-sm font-semibold text-ink-900 transition hover:bg-sand-200">Checkout securely</Link><Link href="/marketplace" className="mt-4 block text-center text-sm font-semibold text-sand-100/80 hover:text-sand-50">Continue shopping</Link></aside></div>}</section></main>;
 }
