@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { Database } from '@/types/database';
+import { Database } from '../../types/database';
 
 export function createClient() {
   return createBrowserClient<Database>(
