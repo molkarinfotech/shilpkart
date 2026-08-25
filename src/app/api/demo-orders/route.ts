@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const ids = [...new Set(items.map((item) => item.id))];
+    const ids = items.map((item) => item.id).filter((id, index, values) => values.indexOf(id) === index);
     const { data: products, error: productsError } = await supabase
       .from('demo_products')
       .select('id,title,price_inr')
