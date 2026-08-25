@@ -1,4 +1,9 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export type DemoProduct = {
   id: string;
@@ -27,7 +32,6 @@ export function formatINR(amount: number) {
 }
 
 export async function getDemoProducts(): Promise<DemoProduct[]> {
-  const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .from('demo_products')
     .select('*')
@@ -38,7 +42,6 @@ export async function getDemoProducts(): Promise<DemoProduct[]> {
 }
 
 export async function getDemoProduct(slug: string): Promise<DemoProduct | null> {
-  const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .from('demo_products')
     .select('*')
