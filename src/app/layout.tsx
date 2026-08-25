@@ -1,28 +1,15 @@
-import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
-const playfair = Playfair_Display({ 
-  subsets: ["latin"],
-  variable: '--font-playfair',
-});
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "ShilpKart - Indian Artisan Marketplace",
-  description: "Discover authentic handcrafted products from talented Indian artisans.",
+  title: 'ShilpKart | Indian Artisan Marketplace',
+  description: 'Discover handcrafted Indian textiles, jewellery, handicrafts and more.',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${playfair.variable} antialiased`}>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
