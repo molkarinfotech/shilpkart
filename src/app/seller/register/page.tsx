@@ -16,9 +16,9 @@ const craftCategories = [
 ];
 
 const deliveryOptions = [
-  'I will ship myself (self-fulfillment)',
-  'I need help with shipping',
-  'Not sure yet',
+  { value: 'seller_managed', label: 'I will ship myself (self-fulfillment)' },
+  { value: 'marketplace_managed', label: 'I need help with shipping (marketplace-managed)' },
+  { value: 'both', label: 'Open to both options' },
 ];
 
 export default function SellerRegistrationPage() {
@@ -182,7 +182,7 @@ export default function SellerRegistrationPage() {
                   <label htmlFor="delivery_preference" className="block text-sm font-medium text-ink-700">Delivery Preference *</label>
                   <select id="delivery_preference" name="delivery_preference" required value={formData.delivery_preference} onChange={handleChange} className="mt-1 w-full rounded-lg border border-ink-300 px-4 py-2.5 text-ink-900 focus:border-clay-500 focus:outline-none focus:ring-1 focus:ring-clay-500">
                     <option value="">Select an option</option>
-                    {deliveryOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                    {deliveryOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
               </div>
