@@ -6,12 +6,19 @@ import { useRouter } from 'next/navigation';
 import { SiteHeader } from '@/components/site-header';
 import { formatINR } from '@/lib/demo-products';
 import { useDemoCart } from '@/components/demo-cart-provider';
+import { calculateShippingInRupees, calculateTotalInRupees } from '@/lib/policy';
 
 type CheckoutForm = { buyerName: string; buyerEmail: string; addressLine1: string; city: string; state: string; pincode: string };
 const initialForm: CheckoutForm = { buyerName: '', buyerEmail: '', addressLine1: '', city: '', state: '', pincode: '' };
 
 export default function CheckoutPage() {
-  const router = useRouter(); const { items, subtotal, clear } = useDemoCart(); const [form, setForm] = useState<CheckoutForm>(initialForm); const [error, setError] = useState(''); const [submitting, setSubmitting] = useState(false); const shipping = subtotal >= 2500 ? 0 : 180; const total = subtotal + shipping;
+  const router = useRouter();
+  const { items, subtotal, clear } = useDemoCart();
+  const [form, setForm] = useState<CheckoutForm>(initialForm);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const shipping = calculateShippingInRupees(subtotal);
+  const total = calculateTotalInRupees(subtotal);
   function update(field: keyof CheckoutForm, value: string) { setForm((current) => ({ ...current, [field]: value })); }
   async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!items.length) { router.replace('/cart'); return; } setError(''); setSubmitting(true); try { const response = await fetch('/api/demo-orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, items }) }); const payload = await response.json(); if (!response.ok) throw new Error(payload.error || 'We could not place your order.'); clear(); router.push(`/checkout/success?order=${encodeURIComponent(payload.orderNumber)}`); } catch (caught) { setError(caught instanceof Error ? caught.message : 'We could not place your order.'); } finally { setSubmitting(false); } }
   if (!items.length) return <main className="min-h-screen bg-sand-50"><SiteHeader /><div className="mx-auto max-w-xl px-5 py-20 text-center"><h1 className="font-display text-3xl text-ink-900">Your bag is empty.</h1><Link href="/marketplace" className="mt-6 inline-block rounded-full bg-ink-900 px-5 py-3 text-sm font-semibold text-sand-50">Return to shop</Link></div></main>;

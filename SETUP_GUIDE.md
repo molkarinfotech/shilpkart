@@ -1,100 +1,99 @@
 # ShilpKart - Setup Guide
 
-## ✅ What's Been Completed
+## 1. Supabase Project
 
-### 1. GitHub Repository
-- **URL**: https://github.com/molkarinfotech/shilpkart
-- **Status**: ✅ Created and populated with initial code
-- **Branch**: main
+The app does **not** connect to a shared Supabase project. You create your
+own and point the app at it through environment variables.
 
-### 2. Supabase Database
-- **Project Name**: shilpkart
-- **Project ID**: zqekrkuwxgzkqnuhwlyi
-- **Database URL**: https://zqekrkuwxgzkqnuhwlyi.supabase.co
-- **Status**: ✅ Database schema applied successfully
-- **Tables Created**: profiles, seller_profiles, categories, products, product_images, orders, order_items, reviews
-- **Features**: RLS policies, indexes, triggers, seed data for categories
+1. Create a project at https://supabase.com/dashboard
+2. Go to **Settings → API**
+3. Copy the Project URL and the anon key — these become
+   `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+4. Copy the **service role key** — this becomes `SUPABASE_SERVICE_ROLE_KEY`.
+   It is server-side only and must not be exposed to the browser.
 
-## 📋 Quick Start
-
-### Step 1: Get API Keys
-
-#### Supabase
-1. Go to https://supabase.com/dashboard/project/zqekrkuwxgzkqnuhwlyi
-2. Settings → API
-3. Copy: Project URL, anon key, service_role key
-
-#### Stripe
-1. Go to https://dashboard.stripe.com/test/apikeys
-2. Copy: Publishable key, Secret key
-
-### Step 2: Clone and Setup
+## 2. Clone and Install
 
 ```bash
 git clone https://github.com/molkarinfotech/shilpkart.git
 cd shilpkart
 npm install
+```
+
+## 3. Configure Environment
+
+```bash
 cp .env.example .env.local
 ```
 
-### Step 3: Configure Environment
+Edit `.env.local`. At minimum:
 
-Edit `.env.local`:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://zqekrkuwxgzkqnuhwlyi.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-key
-STRIPE_SECRET_KEY=sk_test_your-key
+NEXT_PUBLIC_DEMO_MODE=true
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### Step 4: Run Locally
+- `NEXT_PUBLIC_DEMO_MODE=true` enables the demo shopping flow (cart,
+  checkout, demo orders). Leave it `false` on production deploys.
+- Stripe and Razorpay keys are **not required** to run locally — they are
+  planned and not yet wired into checkout.
+
+## 4. Supabase Schema
+
+The app currently reads from and writes to:
+
+- `demo_products`
+- `demo_orders` + `demo_order_items`
+- `seller_applications`
+
+Apply the SQL that creates those tables to your project. The shared SQL file
+is to be added under `supabase/migrations/`; until then, create the tables
+using the definitions in `src/types/database.ts` as a reference and add the
+demo tables.
+
+## 5. Run Locally
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000).
 
-### Step 5: Deploy to Vercel
+## 6. Deploy to Vercel
 
 1. Go to https://vercel.com/new
-2. Import: molkarinfotech/shilpkart
-3. Add environment variables
+2. Import `molkarinfotech/shilpkart`
+3. Add the environment variables from `.env.local` (set `NEXT_PUBLIC_DEMO_MODE=false` for production unless you intend to expose the demo order path)
 4. Deploy
 
-## 📁 Project Structure
+## What's working
 
-```
-shilpkart/
-├── src/
-│   ├── app/              # Next.js pages
-│   ├── components/       # React components
-│   └── lib/              # Utilities (Supabase, Stripe, Razorpay)
-├── types/
-│   └── database.ts       # TypeScript types
-├── package.json
-└── SETUP_GUIDE.md
-```
+- Homepage
+- Marketplace (demo_products, category filtering)
+- Product detail page
+- Cart (localStorage-backed)
+- Checkout demo flow (creates demo_orders / demo_order_items)
+- Seller application flow (`/seller/register` + admin review table)
 
-## 🎯 Next Features to Build
+## What's planned
 
-1. User authentication (Sign up/Login)
-2. Seller registration with Aadhaar upload
-3. Product CRUD for sellers
-4. Shopping cart and checkout
-5. Order management dashboard
-6. Reviews and ratings
+- Supabase Auth (login page is a UI stub)
+- Seller onboarding from approved application to product CRUD
+- Stripe / Razorpay checkout with payment intents and webhooks
+- Reviews and ratings
+- Product management UI for sellers
+- Shared SQL migrations under `supabase/migrations/`
 
-## 💡 Key Features
+## Key policy
 
-- **30% commission** on all sales (automatic calculation)
-- **Multi-vendor** architecture
-- **Payment escrow** - funds released after delivery
-- **Guest checkout** supported
-- **Indian payments** ready (Razorpay integration included)
-- **Secure** - RLS enabled on all database tables
+- Shipping: free above ₹2,500, else ₹180.
+- Commission: 30% marketplace commission on sales.
+
+These live in `src/lib/policy.ts` and are shared between the cart, checkout,
+and demo order API.
 
 ---
 
