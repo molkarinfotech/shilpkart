@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/types/database';
 
-function requireEnv(name: string, fallback: string | undefined): string {
+function requireEnv(name: string, fallback?: string): string {
   const value = process.env[name];
   if (!value && !fallback) {
     throw new Error(
