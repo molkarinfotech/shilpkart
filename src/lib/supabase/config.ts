@@ -2,38 +2,46 @@ import { createClient } from '@supabase/supabase-js';
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/types/database';
 
-function requireEnv(name: string, fallback?: string): string {
-  const value = process.env[name];
-  if (!value && !fallback) {
+const rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const rawSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const rawServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+function requiredEnv(name: string, value: string | undefined): string {
+  if (!value) {
     throw new Error(
       `Missing required environment variable: ${name}. ` +
         `Copy .env.example to .env.local and fill in your Supabase credentials, ` +
         `then restart the dev server.`
     );
   }
-  return (value ?? fallback) as string;
+  return value;
 }
 
 /**
- * Supabase config is sourced exclusively from environment variables.
+ * Supabase config is read from environment variables.
  *
- * The project URL and anon key MUST come from .env.local (or the hosting
- * platform's environment settings). There is no fallback to a live project
- * URL in source code — if the variables are missing the app surfaces a clear
- * error at startup rather than silently connecting to a shared project.
+ * The module never throws at import time — validation happens inside the
+ * create*Client functions, so importing this module is safe during build,
+ * test, and preview environments even when the env vars are absent.
  */
 export const supabaseConfig = {
-  url: requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
-  anonKey: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
-  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  url: rawSupabaseUrl,
+  anonKey: rawSupabaseAnonKey,
+  serviceRoleKey: rawServiceRoleKey,
 } as const;
 
 export function createSupabaseClient() {
-  return createClient(supabaseConfig.url, supabaseConfig.anonKey);
+  return createClient(
+    requiredEnv('NEXT_PUBLIC_SUPABASE_URL', rawSupabaseUrl),
+    requiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', rawSupabaseAnonKey)
+  );
 }
 
 export function createSupabaseBrowserClient() {
-  return createBrowserClient<Database>(supabaseConfig.url, supabaseConfig.anonKey);
+  return createBrowserClient<Database>(
+    requiredEnv('NEXT_PUBLIC_SUPABASE_URL', rawSupabaseUrl),
+    requiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', rawSupabaseAnonKey)
+  );
 }
 
 /**
@@ -44,14 +52,9 @@ export function createSupabaseBrowserClient() {
  * Never expose `SUPABASE_SERVICE_ROLE_KEY` to the browser.
  */
 export function createSupabaseServiceClient() {
-  if (!supabaseConfig.serviceRoleKey) {
-    throw new Error(
-      'SUPABASE_SERVICE_ROLE_KEY is not configured. ' +
-        'The feature you are trying to use requires server-side Supabase access ' +
-        'with the service role key. Add it to .env.local and redeploy.'
-    );
-  }
-  return createClient(supabaseConfig.url, supabaseConfig.serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  return createClient(
+    requiredEnv('NEXT_PUBLIC_SUPABASE_URL', rawSupabaseUrl),
+    requiredEnv('SUPABASE_SERVICE_ROLE_KEY', rawServiceRoleKey),
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );
 }
