@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://zqekrkuwxgzkqnuhwlyi.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+import { createSupabaseServiceClient } from '@/lib/supabase/config';
 
 export async function POST(request: NextRequest) {
+  let client: ReturnType<typeof createSupabaseServiceClient>;
+  try {
+    client = createSupabaseServiceClient();
+  } catch (error) {
+    console.error('Supabase service client could not be created:', error);
+    return NextResponse.json(
+      { error: 'Seller applications are not configured yet. Add SUPABASE_SERVICE_ROLE_KEY to your environment and redeploy.' },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await request.json();
     const {
@@ -22,13 +30,14 @@ export async function POST(request: NextRequest) {
       verification_consent,
     } = body;
 
-    if (!supabaseServiceKey) {
-      return NextResponse.json({ error: 'Service role key not configured' }, { status: 500 });
+    if (!full_name || !email || !phone || !business_name || !craft_category || !craft_story || !city || !state || !pincode || !delivery_preference) {
+      return NextResponse.json(
+        { error: 'Please complete all required fields.' },
+        { status: 400 }
+      );
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('seller_applications')
       .insert({
         full_name,

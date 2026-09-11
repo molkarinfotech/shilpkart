@@ -1,17 +1,31 @@
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServiceClient } from '@/lib/supabase/config';
 import { SiteHeader } from '@/components/site-header';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://zqekrkuwxgzkqnuhwlyi.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxZWtya3V3eGd6a3FudWh3bHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NDk0OTEsImV4cCI6MjEwMzIyNTQ5MX0.7pA4VTPpHArpqn8GfN7ztZUH_cKU-K35LNFojIcthhI';
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminSellerApplicationsPage({ searchParams }: { searchParams: { status?: string } }) {
-  const statusFilter = searchParams.status || 'all';
+export default async function AdminSellerApplicationsPage({
+  searchParams,
+}: {
+  searchParams: { status?: string };
+}) {
+  let client: ReturnType<typeof createSupabaseServiceClient>;
+  try {
+    client = createSupabaseServiceClient();
+  } catch (error) {
+    console.error('Supabase service client could not be created:', error);
+    return (
+      <main className="min-h-screen bg-sand-50">
+        <SiteHeader />
+        <section className="mx-auto max-w-7xl px-5 py-16 text-center">
+          <p className="font-display text-2xl text-ink-800">Admin access is not configured.</p>
+          <p className="mt-2 text-ink-600">Add SUPABASE_SERVICE_ROLE_KEY to your environment and redeploy to manage seller applications.</p>
+        </section>
+      </main>
+    );
+  }
 
-  let query = supabase.from('seller_applications').select('*').order('created_at', { ascending: false });
+  const statusFilter = searchParams.status || 'all';
+  let query = client.from('seller_applications').select('*').order('created_at', { ascending: false });
 
   if (statusFilter !== 'all') {
     query = query.eq('status', statusFilter);
@@ -45,10 +59,46 @@ export default async function AdminSellerApplicationsPage({ searchParams }: { se
 
       <section className="mx-auto max-w-7xl px-5 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
-          <a href="/admin/seller-applications?status=all" className={`rounded-full px-4 py-2 text-sm font-semibold border ${statusFilter === 'all' ? 'bg-ink-900 text-sand-50 border-ink-900' : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-clay-400'}`}>All ({statusCounts.all})</a>
-          <a href="/admin/seller-applications?status=pending" className={`rounded-full px-4 py-2 text-sm font-semibold border ${statusFilter === 'pending' ? 'bg-amber-600 text-white border-amber-600' : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-amber-400'}`}>Pending ({statusCounts.pending})</a>
-          <a href="/admin/seller-applications?status=approved" className={`rounded-full px-4 py-2 text-sm font-semibold border ${statusFilter === 'approved' ? 'bg-moss-600 text-white border-moss-600' : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-moss-400'}`}>Approved ({statusCounts.approved})</a>
-          <a href="/admin/seller-applications?status=rejected" className={`rounded-full px-4 py-2 text-sm font-semibold border ${statusFilter === 'rejected' ? 'bg-red-600 text-white border-red-600' : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-red-400'}`}>Rejected ({statusCounts.rejected})</a>
+          <a
+            href="/admin/seller-applications?status=all"
+            className={`rounded-full px-4 py-2 text-sm font-semibold border ${
+              statusFilter === 'all'
+                ? 'bg-ink-900 text-sand-50 border-ink-900'
+                : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-clay-400'
+            }`}
+          >
+            All ({statusCounts.all})
+          </a>
+          <a
+            href="/admin/seller-applications?status=pending"
+            className={`rounded-full px-4 py-2 text-sm font-semibold border ${
+              statusFilter === 'pending'
+                ? 'bg-amber-600 text-white border-amber-600'
+                : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-amber-400'
+            }`}
+          >
+            Pending ({statusCounts.pending})
+          </a>
+          <a
+            href="/admin/seller-applications?status=approved"
+            className={`rounded-full px-4 py-2 text-sm font-semibold border ${
+              statusFilter === 'approved'
+                ? 'bg-moss-600 text-white border-moss-600'
+                : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-moss-400'
+            }`}
+          >
+            Approved ({statusCounts.approved})
+          </a>
+          <a
+            href="/admin/seller-applications?status=rejected"
+            className={`rounded-full px-4 py-2 text-sm font-semibold border ${
+              statusFilter === 'rejected'
+                ? 'bg-red-600 text-white border-red-600'
+                : 'bg-sand-50 text-ink-700 border-ink-200 hover:border-red-400'
+            }`}
+          >
+            Rejected ({statusCounts.rejected})
+          </a>
         </div>
 
         {error ? (
@@ -66,12 +116,24 @@ export default async function AdminSellerApplicationsPage({ searchParams }: { se
             <table className="min-w-full divide-y divide-ink-200">
               <thead className="bg-sand-100">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">Business</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">Contact</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">Craft</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">Location</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">Applied</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">
+                    Business
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">
+                    Contact
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">
+                    Craft
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">
+                    Location
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-600">
+                    Applied
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-100">
@@ -87,19 +149,31 @@ export default async function AdminSellerApplicationsPage({ searchParams }: { se
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-sm text-ink-700 capitalize">{app.craft_category}</p>
-                      {app.aadhaar_last_four && <p className="text-xs text-ink-400">Aadhaar: ****{app.aadhaar_last_four}</p>}
+                      {app.aadhaar_last_four && (
+                        <p className="text-xs text-ink-400">Aadhaar: ****{app.aadhaar_last_four}</p>
+                      )}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-sm text-ink-700">{app.city}, {app.state}</p>
+                      <p className="text-sm text-ink-700">
+                        {app.city}, {app.state}
+                      </p>
                       <p className="text-xs text-ink-500">{app.pincode}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${statusBadges[app.status] || 'bg-ink-100 text-ink-800 border-ink-300'}`}>
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${
+                          statusBadges[app.status] || 'bg-ink-100 text-ink-800 border-ink-300'
+                        }`}
+                      >
                         {app.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-ink-500">
-                      {new Date(app.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {new Date(app.created_at).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
                     </td>
                   </tr>
                 ))}
