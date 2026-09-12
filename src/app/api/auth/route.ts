@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { signIn, signUp, signOut } from '@/lib/supabase/auth';
 
 export async function POST(request: NextRequest) {
+  // Diagnostic: log env var state at request time
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+  console.log('[auth] NEXT_PUBLIC_SUPABASE_URL:', url ? `set (${url.substring(0, 25)}...)` : 'ABSENT');
+  console.log('[auth] NEXT_PUBLIC_SUPABASE_ANON_KEY:', key ? `set (${key.substring(0, 8)}...)` : 'ABSENT');
+  console.log('[auth] all process.env keys with SUPABASE:', Object.keys(process.env).filter((k) => k.toLowerCase().includes('supabase')));
+  console.log('[auth] process.env.NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL ?? 'ABSENT');
+
   try {
     const body = await request.json();
     const { action } = body;
@@ -60,8 +68,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unknown action.' }, { status: 400 });
   } catch (error) {
     console.error('Auth API error:', error);
-    const message =
-      error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       { error: `Auth API error: ${message}` },
       { status: 500 }
