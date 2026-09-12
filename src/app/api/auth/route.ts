@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await signIn(email, password);
       if (error) {
-        console.error('Sign-in error:', error);
         return NextResponse.json(
           { error: error.message ?? 'Sign in failed.' },
           { status: 401 }
@@ -41,7 +40,6 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await signUp(email, password, fullName);
       if (error) {
-        console.error('Sign-up error:', error);
         return NextResponse.json(
           { error: error.message ?? 'Sign up failed.' },
           { status: 400 }
@@ -62,8 +60,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unknown action.' }, { status: 400 });
   } catch (error) {
     console.error('Auth API error:', error);
+    const message =
+      error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: 'An unexpected error occurred.' },
+      { error: `Auth API error: ${message}` },
       { status: 500 }
     );
   }
