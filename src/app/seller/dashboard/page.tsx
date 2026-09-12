@@ -16,6 +16,10 @@ export default async function SellerDashboardPage() {
 
   const { session, profile } = currentUser;
 
+  if (!profile) {
+    redirect('/auth/login?redirectTo=/seller/dashboard');
+  }
+
   // Only verified sellers may enter this dashboard.
   if (profile.role !== 'seller') {
     redirect('/dashboard');

@@ -13,6 +13,10 @@ export default async function AccountPage() {
 
   const { session, profile } = currentUser;
 
+  if (!profile) {
+    redirect('/auth/login?redirectTo=/account');
+  }
+
   return (
     <main>
       <AccountForm profile={profile} session={session} />
