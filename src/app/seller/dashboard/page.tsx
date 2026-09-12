@@ -8,11 +8,13 @@ import { SellerDashboardContent } from './seller-dashboard-content';
 export const dynamic = 'force-dynamic';
 
 export default async function SellerDashboardPage() {
-  const { session, profile } = await getCurrentUser();
+  const currentUser = await getCurrentUser();
 
-  if (!session || !profile) {
+  if (!currentUser) {
     redirect('/auth/login?redirectTo=/seller/dashboard');
   }
+
+  const { session, profile } = currentUser;
 
   // Only verified sellers may enter this dashboard.
   if (profile.role !== 'seller') {

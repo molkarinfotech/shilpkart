@@ -5,11 +5,13 @@ import { DashboardContent } from './dashboard-content';
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const { session, profile } = await getCurrentUser();
+  const currentUser = await getCurrentUser();
 
-  if (!session || !profile) {
+  if (!currentUser) {
     redirect('/auth/login?redirectTo=/dashboard');
   }
+
+  const { session, profile } = currentUser;
 
   return <DashboardContent profile={profile} session={session} />;
 }

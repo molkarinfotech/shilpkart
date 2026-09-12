@@ -5,11 +5,13 @@ import { AccountForm } from './account-form';
 export const dynamic = 'force-dynamic';
 
 export default async function AccountPage() {
-  const { session, profile } = await getCurrentUser();
+  const currentUser = await getCurrentUser();
 
-  if (!session || !profile) {
+  if (!currentUser) {
     redirect('/auth/login?redirectTo=/account');
   }
+
+  const { session, profile } = currentUser;
 
   return (
     <main>
