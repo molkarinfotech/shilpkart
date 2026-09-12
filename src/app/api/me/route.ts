@@ -11,9 +11,7 @@ export async function GET() {
     return NextResponse.json({ user: null }, { status: 200 });
   }
 
-  const {
-    data: { user },
-  } = session;
+  const { user } = session;
 
   let role: string | null = null;
   let sellerProfile: ReturnType<typeof getVerifiedSellerProfile> = null;
