@@ -14,7 +14,7 @@ export async function GET() {
   const { user } = session;
 
   let role: string | null = null;
-  let sellerProfile: ReturnType<typeof getVerifiedSellerProfile> = null;
+  let sellerProfile: Awaited<ReturnType<typeof getVerifiedSellerProfile>> = null;
 
   try {
     const { createServerSupabaseClient } = await import('@/lib/supabase/auth');
