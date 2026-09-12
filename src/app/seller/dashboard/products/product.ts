@@ -1,4 +1,6 @@
-type Product = {
+import type { User } from '@supabase/supabase-js';
+
+export type Product = {
   id: string;
   seller_id: string;
   category_id: string | null;
@@ -14,4 +16,4 @@ type Product = {
   updated_at: string;
 };
 
-export type { Product };
+export type { User };

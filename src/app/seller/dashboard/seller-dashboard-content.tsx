@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
-import { ProductForm } from './product-form';
+import { ProductForm } from './products/product-form';
 import { SellerProductList } from './seller-product-list';
 
 type Profile = {

@@ -1,10 +1,10 @@
-import { createSupabaseClient, getSession } from '@/lib/supabase/server';
+import { createServerSupabaseClient, getSession } from '@/lib/supabase/server';
 
 export async function getSellerProducts() {
   const session = await getSession();
   if (!session) return [];
 
-  const supabase = createSupabaseClient();
+  const supabase = createServerSupabaseClient();
 
   const { data, error } = await supabase
     .from('products')
@@ -17,5 +17,5 @@ export async function getSellerProducts() {
     return [];
   }
 
-  return (data ?? []);
+  return data ?? [];
 }

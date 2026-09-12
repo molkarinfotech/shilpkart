@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SiteHeader } from '@/components/site-header';
-import type { Product } from './product';
+import type { Product } from './products/product';
 
 export function SellerProductList() {
   const router = useRouter();

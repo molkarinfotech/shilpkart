@@ -214,3 +214,5 @@ export function SellerProductForm({ slug }: { slug?: string }) {
     </main>
   );
 }
+
+export { SellerProductForm as ProductForm };

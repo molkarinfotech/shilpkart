@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getSession,
-  isMarketplaceAdmin,
-  getVerifiedSellerProfile,
-} from '@/lib/supabase/auth';
+import { getSession, getVerifiedSellerProfile } from '@/lib/supabase/auth';
 
 export async function GET() {
   const session = await getSession();
@@ -17,8 +13,9 @@ export async function GET() {
   let sellerProfile: Awaited<ReturnType<typeof getVerifiedSellerProfile>> = null;
 
   try {
-    const { createServerSupabaseClient } = await import('@/lib/supabase/auth');
-    const supabase = createServerSupabaseClient();
+    const supabase = await import('@/lib/supabase/auth').then(
+      (m) => m.createServerSupabaseClient()
+    );
 
     const { data: profile } = await supabase
       .from('profiles')
