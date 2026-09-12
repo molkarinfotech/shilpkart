@@ -19,7 +19,7 @@ export default async function AccountPage() {
 
   return (
     <main>
-      <AccountForm profile={profile} session={session} />
+      <AccountForm profile={profile} session={session.user} />
     </main>
   );
 }

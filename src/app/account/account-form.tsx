@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SiteHeader } from '@/components/site-header';
+import type { User } from '@supabase/supabase-js';
 
 type Profile = {
   id: string;
@@ -14,16 +15,7 @@ type Profile = {
   updated_at: string;
 };
 
-type SessionUser = {
-  id: string;
-  email: string;
-  aud: string;
-  role?: string;
-  created_at: string;
-  last_sign_in_at?: string;
-};
-
-export function AccountForm({ profile, session }: { profile: Profile; session: SessionUser }) {
+export function AccountForm({ profile, session }: { profile: Profile; session: User }) {
   const router = useRouter();
   const [fullName, setFullName] = useState(profile.full_name ?? '');
   const [phone, setPhone] = useState(profile.phone ?? '');

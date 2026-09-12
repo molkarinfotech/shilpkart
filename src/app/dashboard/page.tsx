@@ -17,5 +17,5 @@ export default async function DashboardPage() {
     redirect('/auth/login?redirectTo=/dashboard');
   }
 
-  return <DashboardContent profile={profile} session={session} />;
+  return <DashboardContent profile={profile} session={session.user} />;
 }
